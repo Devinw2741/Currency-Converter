@@ -3,19 +3,40 @@ import { AppRegistry, Text, View, TouchableHighlight, StyleSheet, TextInput } fr
 import { Constants } from 'expo';
 
 export default class App extends Component {
-    state= {
-        inputValue: 'Put in currecny you wanna change here',
-        newBal: 0,
-        bal: 0,
+    constructor(props){
+        super(props)
+        this.state = {
+            bal:1.00
+            newBal:0,
+            inputValue: "",
+            isLoading: true,
+            dtataSource:null,
+        }
     }
+    componentDidMount (){
+        return fetch('http://www.apilayer.net/api/live?access_key=e61d9d8b0fea6212329b614bbd9edc24&format=1')
+            .then((response) => response.json())
+            .then((responseJson) => {
+                this.setState({
+                    isLoading: false,
+                    dataSource: responseJson.quotes,
+                })
+            })
+ 
+            .catch((error) => {
+                console.log(error)
+            });
+    }
+ 
+ 
     usdEU = () => {
         this.setState({
-            newBal: this.state.inputValue * .89,
+            newBal: this.state.inputValue * this.state.dataSource.USDEUR  ,
         })
     }
     usdPound = () => {
        this.setState({
-           newBal: this.state.inputValue * .75,
+           newBal: this.state.inputValue * this.state.dataSource.USDGBP
        })
    }
     usdRupee = () => {
@@ -54,6 +75,16 @@ export default class App extends Component {
     };
 
     render() {
+        if(this.state.isLoading) {
+            return(
+                <View style = {styles.container}>
+                    <ActivityIndicator/>
+                </View>
+            )
+        } else{
+
+        
+
         return (
             <View style={styles.container}>
                 <Text style={styles.paragraph}>
@@ -157,13 +188,14 @@ export default class App extends Component {
       );
    }
 }
+}
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'LightBlue',
+        backgroundColor: 'lightBlue',
         
     },
      balxd:{
